@@ -16,18 +16,37 @@ client.on('message', msg => {
         //kick users
         if (CMD_NAME === "kick") {
             const member = msg.guild.members.cache.get(args[0]);
-            if(member){
+            if (args.length === 0)
+                return message.reply('Please provide an ID');
+            const member = message.guild.members.cache.get(args[0]);
+            if (member) {
                 member
-                .kick()
-                .then((member)=>msg.channel.send(`${member} was kicked.`))
-                .catch((err)=> msg.channel.send('I do not have permissions to do that.'));
+                    .kick()
+                    .then((member) => message.channel.send(`${member} was kicked.`))
+                    .catch((err) => message.channel.send('I cannot kick that user :('));
+            } else {
+                message.channel.send('That member was not found');
             }
-            else{
-                msg.channel.send('That member was not found')
-            }
-            msg.channel.send('kicked the user');
 
+
+        } else if (CMD_NAME === 'ban') {
+            if (!message.member.hasPermission('BAN_MEMBERS'))
+                return message.reply("You do not have permissions to use that command");
+            if (args.length === 0) return message.reply("Please provide an ID");
+            try {
+                const user = await message.guild.members.ban(args[0]);
+                message.channel.send('User was banned successfully');
+            } catch (err) {
+                console.log(err);
+                message.channel.send('An error occured. Either I do not have permissions or the user was not found');
+            }
+        } else if (CMD_NAME === 'announce') {
+            console.log(args);
+            const msg = args.join(' ');
+            console.log(msg);
+            webhookClient.send(msg);
         }
+
     }
 
 });
